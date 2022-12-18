@@ -1,0 +1,110 @@
+#include <Arduino.h>
+#include <Wire.h>
+#include <Hyperparameter.h>
+
+void interept(String command);
+String __iterate_command(String command, int &pos);
+void extract_speed(int &speed1, int &speed2, String command);
+void filter_code(String command, int &pos);
+void test_speed(int speed1, int speed2);
+
+void setup()
+{
+  Serial.begin(9600);
+}
+
+/// Chuỗi lệnh: F;50;50;#
+void loop()
+{
+  if (Serial.available())
+  {
+    String response = Serial.readStringUntil(END_OF_PACKAGE);
+    if (response.length() > 0)
+    {
+      Serial.print("Chuỗi đọc được là: ");
+      Serial.println(response);
+      interept(response);
+    }
+  }  
+}
+
+void interept(String command)
+{
+  if (command[0] == FORWARD)
+  {
+    int speed1, speed2;
+    extract_speed(speed1, speed2, command);
+    // run_brushless(speed1, speed2);
+  }
+  else if (command[0] == BACKWARD)
+  {
+    int speed1, speed2;
+    extract_speed(speed1, speed2, command);
+    // run_brushless(speed1, speed2);
+  }
+  else if (command[0] == LEFT)
+  {
+    int pos;
+    filter_code(command, pos);
+    String angle = __iterate_command(command, pos);
+    Serial.print("Góc quay đọc được là ");
+    Serial.println(angle);
+  }
+  else if (command[0] == RIGHT)
+  {
+    int pos;
+    filter_code(command, pos);
+    String angle = __iterate_command(command, pos);
+  }
+  else {}
+    // run_brushless();
+}
+
+
+String __iterate_command(String command, int &pos)
+{
+  /// @brief
+  /// @param command
+  /// @param pos
+  /// @return trả về chuỗi kết quả được ngăn cách bởi <SPK>, đồng thời vị trí trỏ sẽ đi sang gói tin tiếp theo
+  String temp;
+  while (command[pos] != SPLIT_PACKAGE)
+  {
+    temp += command[pos];
+    pos++;
+  }
+  pos++;
+  return temp;
+}
+
+void extract_speed(int &speed1, int &speed2, String command)
+{
+  /// Skip for SPLIT_PACKAGE
+  /// Structure code<SPK>speed1<SPK>speed2<SPK><EPK>
+  int pos;
+  filter_code(command, pos);
+  String sp1 = __iterate_command(command, pos);
+  String sp2 = __iterate_command(command, pos);
+  speed1 = sp1.toInt();
+  speed2 = sp2.toInt();
+  if (speed1 == ERROR_COMMAND_SPEED)
+    speed1 = 50;
+  if (speed2 == ERROR_COMMAND_SPEED)
+    speed2 = 50;
+}
+
+void filter_code(String command, int &pos)
+{
+  pos = 0;
+  while (command[pos] != SPLIT_PACKAGE)
+    pos++;
+  pos++;
+}
+
+void test_speed(int speed1, int speed2)
+{
+  Serial.print(String(speed1));
+  Serial.print(' ');
+  Serial.print(String(speed2));
+  Serial.println();
+}

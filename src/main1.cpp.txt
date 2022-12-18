@@ -1,0 +1,45 @@
+#include <Arduino.h>
+#include <Wire.h>
+#include <Servo.h>
+
+Servo left, right;
+
+void setup()
+{
+  Serial.begin(9600);
+  delay(5000);
+  left.attach(9, 1000, 2000);
+  right.attach(10, 1000, 2000);
+  left.write(0);
+  right.write(0);
+
+  Serial.begin(9600);
+  // left.write(0);
+}
+
+void loop()
+{
+  // analogWrite(9, 100);
+  // for (int i = 0; i <= 90; i += 1) {
+  //   left.write(i);
+  //   right.write(i);
+  //   delay(10);
+  // }
+  // for (int i = 90; i >= 0; i -= 1)
+  // {
+  //   left.write(i);
+  //   right.write(i);
+  //   delay(10);
+  // }
+  if (Serial.available())
+  {
+    String run = Serial.readStringUntil(';');
+    int speed = run.toInt();
+    if (speed >= 0 && speed <= 180)
+    {
+      left.write(speed);
+      right.write(speed);
+    }
+  }
+  // Serial.println(analogRead(A1));
+}

@@ -1,0 +1,202 @@
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_HMC5883_U.h>
+
+/* Assign a unique ID to this sensor at the same time */
+Adafruit_HMC5883_Unified mag = Adafruit_HMC5883_Unified(12345);
+const int range_deg = 10;
+
+// Parameters
+const int escPin1 = 9, escPin2 = 10;
+int min_throttle = 1000;
+int max_throttle = 2000;
+unsigned long currentMillis, previousMillis;
+
+int speed1 = 0, speed2 = 0, angle = 0, distance = 0;
+const int time_measure = 20000;
+
+// TDS SENSOR
+int sensorPin = A1;
+int sensorValue = 0;
+float tdsValue = 0;
+float Voltage = 0;
+
+// NTU SENSOR
+int NTUPin = A0;
+float volt;
+float ntu;
+
+void setup()
+{
+  Serial.begin(9600);
+  pinMode(escPin1, OUTPUT);
+  pinMode(escPin2, OUTPUT);
+
+  if (!mag.begin())
+    while (1)
+      ;
+
+  currentMillis = millis();
+
+  while (true)
+  {
+    if (Serial.available())
+    {
+      Serial.readStringUntil('\n');
+      Serial.println("OKOK");
+      break;
+    }
+  }
+}
+
+void loop()
+{
+  if (Serial.available() > 0)
+  {
+    String data = Serial.readStringUntil('#');
+
+    String temp = "";
+    int android[4];
+    int number = 0;
+    for (int i = 0; i < data.length(); i++)
+      if (data[i] != ';')
+        temp += data[i];
+      else
+      {
+        android[number] = temp.toInt();
+        number++;
+        temp = "";
+      }
+    speed1 = android[0];
+    speed2 = android[1];
+    angle = android[2];
+    // Serial.println(angle);
+    if (angle < 0)
+      tleft_right(abs(angle), false);
+    else if (angle > 0)
+      tleft_right(abs(angle), true);
+    Serial.flush();
+  }
+
+  if ((unsigned long)millis() - currentMillis >= time_measure)
+  {
+    currentMillis = (unsigned long)millis();
+    float NTU = measure_NTU();
+    float TDS = measure_TDS();
+    String index = String(NTU) + '@' + String(TDS) + '#';
+    Serial.println(index);
+  }
+
+  runBrushless(speed1, speed2);
+}
+
+void tleft_right(int angle, bool dir)
+{
+  int de, temp = compass();
+
+  if (dir) // right
+  {
+    // Serial.println(temp);
+    de = temp + angle;
+    if (de >= 360)
+      de -= 360;
+    while (1)
+    {
+      if (temp >= de - range_deg && temp <= de + range_deg)
+        break;
+      runBrushless(0, 50);
+      temp = compass();
+    }
+    delay(100);
+    runBrushless(0, 0);
+  }
+  else // left
+  {
+    de = temp - angle;
+    if (de < 0)
+      de += 360;
+
+    while (1)
+    {
+      if (temp >= de - range_deg && temp <= de + range_deg)
+        break;
+      runBrushless(50, 0);
+      temp = compass();
+    }
+    delay(100);
+    runBrushless(0, 0);
+  }
+}
+
+float measure_NTU()
+{
+  volt = 0;
+  for (int i = 0; i < 800; i++)
+    volt += ((float)analogRead(NTUPin) / 1023) * 5;
+
+  volt = volt / 800;
+  volt = round_to_dp(volt, 2);
+  if (volt < 2.5)
+  {
+    ntu = 3000;
+  }
+  else
+  {
+    ntu = -1120.4 * square(volt) + 5742.3 * volt - 4353.8;
+  }
+  return ntu;
+}
+
+float round_to_dp(float in_value, int decimal_place)
+{
+  float multiplier = powf(10.0f, decimal_place);
+  in_value = roundf(in_value * multiplier) / multiplier;
+  return in_value;
+}
+
+float measure_TDS()
+{
+  sensorValue = 0;
+  for (int i = 0; i < 100; i++)
+    sensorValue += analogRead(sensorPin);
+  sensorValue /= 100;
+  sensorValue = round(sensorValue);
+  Voltage = sensorValue * 5 / 1024.0;                                                                      // Convert analog reading to Voltage
+  tdsValue = (133.42 * Voltage * Voltage * Voltage - 255.86 * Voltage * Voltage + 857.39 * Voltage) * 0.5; // Convert voltage value to TDS value
+  tdsValue = max(tdsValue, 0);
+  return tdsValue;
+}
+
+void runBrushless(int speed1, int speed2)
+{ /* function runBrushless */
+  //// Test Brushless routine
+  digitalWrite(escPin1, HIGH);
+  delayMicroseconds(1000 + 10 * speed1);
+  digitalWrite(escPin1, LOW);
+
+  digitalWrite(escPin2, HIGH);
+  delayMicroseconds(1000 + 10 * speed2);
+  digitalWrite(escPin2, LOW);
+}
+
+int compass()
+{
+  /* Get a new sensor event */
+  sensors_event_t event;
+  mag.getEvent(&event);
+
+  float heading = atan2(event.magnetic.y, event.magnetic.x);
+  float declinationAngle = 0.22;
+  heading += declinationAngle;
+
+  // Correct for when signs are reversed.
+  if (heading < 0)
+    heading += 2 * PI;
+
+  // Check for wrap due to addition of declination.
+  if (heading > 2 * PI)
+    heading -= 2 * PI;
+
+  // Convert radians to degrees for readability.
+  return heading * 180 / M_PI;
+}
