@@ -1,0 +1,4 @@
+SPLIT_PACKAGE = ";"
+END_PACKAGE = "#"
+NO_BARRIER = False
+HAS_BARRIER = True

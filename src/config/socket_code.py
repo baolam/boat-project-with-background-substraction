@@ -1,0 +1,5 @@
+UPDATE_HOST = "H"
+DEFAULT_SSID = "vinhchanh"
+DEFAULT_PASSWORD = "0967030483"
+ASK_WIFI = "wifi"
+UPDATE_WIFI = "update-wifi"
