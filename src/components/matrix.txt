@@ -1,0 +1,52 @@
+          {/* Draw a column */}
+          {(() => {
+            let m = [];
+            let h = this.props.height - 50;
+            for (let i = this.state.begin_x; i <= this.state.width / Trace.beta; i++)
+            {
+              m.push(
+                <Line 
+                  points={[ Trace.beta * i, 0, Trace.beta * i, h ]}
+                  key={i}
+                  stroke="rgba(127, 0, 0, 0.3)"
+                  strokeWidth={2}
+                />, 
+                <Text 
+                  x={Trace.beta * i - 5}
+                  y={h - 10}
+                  text={String(i)}
+                  align="center"
+                  fontSize={12}
+                  fill="blue"
+                />
+              );
+            }
+            return m;
+          })()}
+          {/* Draw a row */}
+          {
+            (() => {
+              let m = [];
+              let h = this.props.height - 50;
+              for (let i = this.state.begin_y; i <= this.state.height / Trace.beta; i++)
+              {
+                m.push(
+                  <Line 
+                    points={[ 0, h - Trace.beta * i, Trace.width, h - Trace.beta * i ]}
+                    key={i}
+                    stroke="rgba(0, 127, 0, 0.3)"
+                    strokeWidth={2}
+                  />,
+                  <Text 
+                    x={0}
+                    y={h - Trace.beta * i - 5}
+                    text={String(i)}
+                    align="center"
+                    fontSize={12}
+                    fill="blue"
+                  />
+                )
+              }
+              return m;
+            })()
+          }
