@@ -8,7 +8,7 @@ function modify_template(head, plotBands, object_name)
 {
   let _template = {
     chart : {
-      type : "spline"
+      type : "line"
     },
     title : {
       text : "Example text"
@@ -27,7 +27,7 @@ function modify_template(head, plotBands, object_name)
       labels : {
         formatter : function()
         {
-          let date = new Date();
+          let date = new Date(this.value);
           return `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
         }
       }

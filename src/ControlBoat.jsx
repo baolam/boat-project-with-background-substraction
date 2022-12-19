@@ -24,7 +24,7 @@ class ControlBoat extends Component {
           style={{ textAlign : "center" }}>
             Control (By hand)
         </Typography>
-        <Grid container>
+        <Grid container spacing={1}>
           <Grid item xs={2}>
             <Button 
               fullWidth 
@@ -63,7 +63,7 @@ class ControlBoat extends Component {
           </Grid>
         </Grid>
         <br />
-        <Grid container>
+        <Grid container spacing={1}>
           <Grid item xs={4}>
             <Button
               fullWidth

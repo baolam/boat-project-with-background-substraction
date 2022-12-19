@@ -23,7 +23,7 @@ class BoatInformation extends Component {
             <DetailInformation />            
           </Grid>
           <Grid>
-            <Trace height={450} />
+            <Trace height={450} width={250} />
           </Grid>
         </Grid>
       </Box>

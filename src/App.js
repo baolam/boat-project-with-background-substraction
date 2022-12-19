@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import GraphData from './GraphData';
 import BoatInformation from './BoatInformation';
 import ControlBoat from './ControlBoat';
+import Recommender from './Recommender';
 
 class App extends Component {
   render() {
@@ -12,6 +13,8 @@ class App extends Component {
         <GraphData  />
         <br />
         <ControlBoat />
+        <br />
+        <Recommender />        
       </div>
     )
   }
