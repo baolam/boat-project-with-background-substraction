@@ -1,8 +1,10 @@
 import serial
+import time
 import threading
 
 from typing import List
 from typing import Tuple
+from mpu6050 import mpu6050
 
 from ..config.automatic_code import ALL_LAKE
 from ..config.automatic_code import ONLY_LAKESIDE
@@ -51,6 +53,7 @@ class Robot:
   def stop(self):
     self.write(STOP + SPLIT_PACKAGE + END_PACKAGE)
 
+sensor = mpu6050(0x68)
 class Automatic:
   def __init__(self, essemble : Essemble, maintain):
     self.mode = NOT_WORKING 
@@ -61,10 +64,17 @@ class Automatic:
 
     self.__end_service = False
     self.speed = 0
+    
+    # Cac thong so cua thiet bi do mpu6050
+    self.alpha = 0.2
+    # Gia tri loi cua cam bien gia toc
+    self.theta = 0.6
+    self.a0 = 0
+    self.v0 = 0
     # Tín hiệu từ mpu
     threading.Thread(name="MPU6050 service", target=self.__mpu6050) \
       .start()
-
+    
   def update_mode(self, mode):
     self.mode = mode
   
@@ -136,8 +146,15 @@ class Automatic:
 
     print("MPU6050 service started")
     while not self.__end_service:
-      pass 
-  
+      pTime = time.time()
+      a = sensor.get_accel_data()["x"]
+      a -= self.theta
+      a = a * self.alpha + (1 - self.alpha) * a0
+      cTime = time.time()
+      self.speed = self.v0 + a * ((cTime - pTime) / 1000)
+      self.a0 = a
+      self.v0 = self.speed
+      
   def boat_information(self):
     return {
       "speed" : self.speed
