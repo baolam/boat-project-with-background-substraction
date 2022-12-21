@@ -84,6 +84,7 @@ class Automatic:
 
   def all_lake_mode(self):
     print("Run on all_lake mode")
+
     
   def only_lakeside(self):
     print("Run on only lakeside")
@@ -130,6 +131,8 @@ class Automatic:
     # I suppose it's ok
     # https://pypi.org/project/mpu6050-raspberrypi/
     # https://www.youtube.com/watch?v=JTFa5l7zAA4
+    # https://microdigisoft.com/mpu6050-accelerometergyroscope-sensor-interfacing-with-raspberry-pi/
+    # https://pypi.org/project/mpu6050-raspberrypi/
 
     print("MPU6050 service started")
     while not self.__end_service:
