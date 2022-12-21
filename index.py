@@ -23,6 +23,7 @@ lorasignal = LoraSignal(lora, automatic)
 maintain.add_handler("mode", automatic.update_mode)
 maintain.start()
 
+# I merge you this line
 stop = False
 try:
   def _background():
