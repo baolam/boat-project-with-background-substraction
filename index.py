@@ -1,5 +1,6 @@
 import cv2
 import serial
+import threading
 
 from src.image.Background import Background
 from src.device.Essemble import Essemble
@@ -21,3 +22,19 @@ lorasignal = LoraSignal(lora, automatic)
 # Thêm các sự kiện server
 maintain.add_handler("mode", automatic.update_mode)
 maintain.start()
+
+stop = False
+try:
+  def _background():
+    global stop
+    while not stop:
+      rectangles, frame = background.run()
+      automatic.update_background(rectangles, frame)
+    
+  threading.Thread(name = "Background service", target = _background) \
+    .start()
+  maintain.start()
+except:
+  essemble.end()
+  lorasignal.end()
+  stop = True
