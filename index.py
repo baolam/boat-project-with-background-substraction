@@ -6,6 +6,7 @@ HEALTH = "HEALTH"
 import serial
 import socketio
 import threading
+import time
 from telegram import Bot
 from telegram.ext import MessageHandler, Updater, Filters
 from telegram.utils.request import Request
@@ -28,8 +29,8 @@ send_data = "SEND_DATA"
 response_control = "R"
 
 client = socketio.Client()
-lora = serial.Serial("/dev/ttyUSB0")
-
+lora = serial.Serial("/dev/ttyUSB0", 9600, parity=serial.PARITY_NONE,
+    stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=1)
 def control_handler(command):
   lora.write(bytes('HAND_CONTROL;{};#'.format(command), "utf-8"))
   client.emit("RESPONSE", {
@@ -54,21 +55,26 @@ def telegram_service():
 def lora_service():
   while True:
     commands = lora.readline().decode("utf-8") \
-      .replace('\r\n', '')
+      .replace('\r\n', '').split('#')[0]
     commands = commands.split(';')
+    print(commands)
     if commands[0] == HEALTH:
       lora.write(b'1;okok')
     if commands[0] == send_data:
         ntu, tds, ph = map(int, commands[1:])
-        client.emit("record", data={
-            "ntu" : ntu, "tds" : tds, "ph" : ph
-        }, namespace = NAMESPACE)
+        if client.connected:
+            client.emit("record", data={
+                "ntu" : ntu, "tds" : tds, "ph" : ph
+            }, namespace = NAMESPACE)
     if commands[0] == barrier_code:
         left, forward, right = map(bool, commands[1:])
-        client.emit("barrier_code", data={
-          "left" : left, "right" : right, "forward" : forward
-        }, namespace=NAMESPACE)
-    
+        if client.connected:
+            client.emit("barrier_code", data={
+              "left" : left, "right" : right, "forward" : forward
+            }, namespace=NAMESPACE)
+
+print("Gui du lieu")
+lora.write(bytes("Hello world", "utf-8"))
 threading.Thread(name="Client service", target=client_service).start()
 threading.Thread(name="Lora service", target=lora_service).start()
 telegram_service()
