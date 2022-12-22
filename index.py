@@ -23,6 +23,10 @@ updater = Updater(bot=bot, use_context = True)
 dp = updater.dispatcher
 dp.add_handler(MessageHandler(filters=Filters.all, callback=receive))
 
+barrier_code = "BARRIER_CODE"
+send_data = "SEND_DATA"
+response_control = "R"
+
 client = socketio.Client()
 lora = serial.Serial("/dev/ttyAMA0")
 
@@ -54,7 +58,17 @@ def lora_service():
     commands = commands.split(';')
     if commands[0] == HEALTH:
       lora.write(b'1;okok')
-
+    if commands[0] == SEND_DATA:
+        ntu, tds, ph = map(int, commands[1:])
+        client.emit("record", data={
+            "ntu" : ntu, "tds" : tds, "ph" : ph
+        }, namespace = NAMESPACE)
+    if commands[0] == BARRIER_CODE:
+        left, forward, right = map(bool, commands[1:])
+        self.client.emit("barrier_code", data={
+            "left" : left, "right" : right, "forward" : forward
+        }, namespace=NAMESPACE)
+    
 threading.Thread(name="Client service", target=client_service).start()
 threading.Thread(name="Lora service", target=lora_service).start()
 telegram_service()
