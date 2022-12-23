@@ -4,7 +4,7 @@ import threading
 
 from typing import List
 from typing import Tuple
-from mpu6050 import mpu6050
+from ..config.constant import USE_MPU6050
 
 from ..config.automatic_code import ALL_LAKE
 from ..config.automatic_code import ONLY_LAKESIDE
@@ -21,7 +21,6 @@ from ..config.essemble_code import NO_BARRIER
 from ..config.essemble_code import HAS_BARRIER
 from ..config.essemble_code import SPLIT_PACKAGE
 from ..config.essemble_code import END_PACKAGE
-from ..device.Essemble import Essemble
 
 from .MatrixPoint import MatrixPoint
 from .TraceData import TraceData
@@ -38,7 +37,8 @@ class Robot:
 
   @staticmethod
   def write_signal(data, device):
-    device.write(b'{}'.format(data))
+    print("Chuỗi dữ liệu gửi là ", data)
+    device.write(bytes('{}'.format(data), "utf-8"))
 
   def forward(self):
     self.write(FORWARD + SPLIT_PACKAGE + str(self.percentage) + SPLIT_PACKAGE + str(self.percentage) 
@@ -57,13 +57,12 @@ class Robot:
   def stop(self):
     self.write(STOP + SPLIT_PACKAGE + END_PACKAGE)
 
-sensor = mpu6050(0x68)
 class Automatic:
-  def __init__(self, essemble : Essemble, maintain):
+  def __init__(self, essemble, maintain):
     self.mode = NOT_WORKING 
     self.essemble = essemble
     self.robot = Robot(essemble.arduino)
-    self.mp = MatrixPoint()
+    self.mp = MatrixPoint(rows=100, cols=100)
     self.trace_data = TraceData(maintain)
 
     self.__end_service = False
@@ -85,6 +84,7 @@ class Automatic:
   def update_background(self, rectangles, frame):
     self.rectangles = rectangles
     self.frame = frame
+    # print("Khung nhận rác ", rectangles)
 
   def run(self, trash_areas : List[
     Tuple[int, int, int, int]], frame
@@ -148,18 +148,20 @@ class Automatic:
     # https://microdigisoft.com/mpu6050-accelerometergyroscope-sensor-interfacing-with-raspberry-pi/
     # https://pypi.org/project/mpu6050-raspberrypi/
     # https://electronics.stackexchange.com/questions/142037/calculating-angles-from-mpu6050
-
-    print("MPU6050 service started")
-    while not self.__end_service:
-      pTime = time.time()
-      a = sensor.get_accel_data()["x"]
-      a -= self.theta
-      a = a * self.alpha + (1 - self.alpha) * self.a0
-      cTime = time.time()
-      self.speed = self.v0 + a * ((cTime - pTime) / 1000)
-      self.a0 = a
-      self.v0 = self.speed
-      self.mp.run(self.speed * 0.001)
+    if USE_MPU6050:
+      from mpu6050 import mpu6050
+      sensor = mpu6050(0x68)
+      print("MPU6050 service started")
+      while not self.__end_service:
+        pTime = time.time()
+        a = sensor.get_accel_data()["x"]
+        a -= self.theta
+        a = a * self.alpha + (1 - self.alpha) * self.a0
+        cTime = time.time()
+        self.speed = self.v0 + a * ((cTime - pTime) / 1000)
+        self.a0 = a
+        self.v0 = self.speed
+        self.mp.run(self.speed * 0.001)
 
   def boat_information(self):
     return {

@@ -63,12 +63,15 @@ class MaintainConnectionServer:
 
   def __initalize_bot(self):
     print("Initalize bot")
-    updater = Updater(bot = self.bot, use_context = True)
-    dp = updater.dispatcher
-    dp.add_handler(MessageHandler(Filters.all, self.__message))
-    self.telegram_service = updater
-    updater.start_polling()
-    updater.idle()
+    try:
+      updater = Updater(bot = self.bot, use_context = True)
+      dp = updater.dispatcher
+      dp.add_handler(MessageHandler(Filters.all, self.__message))
+      self.telegram_service = updater
+      updater.start_polling()
+      updater.idle()
+    except KeyboardInterrupt as e:
+      print(e)
   
   def __reconnect_socket(self):
     if self.client.connected:

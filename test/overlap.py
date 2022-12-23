@@ -17,8 +17,8 @@ for i in range(0, 5):
 
 while True:
   rectangles, frame = background.run()
-  result = deconvle.run(rectangles)
-  for rectangle in result:
+  print(rectangles)
+  for rectangle in rectangles:
     x, y, w, h = rectangle
     cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 1)
   cv2.imshow("IMAGE", frame)

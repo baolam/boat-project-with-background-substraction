@@ -9,7 +9,7 @@ ABSTRACT_RECTANGLE = List[Tuple[int, int, int, int]]
 
 class DeConvolve:
   def __init__(self):
-    self.threshold = 20
+    self.threshold = 0
 
   def coordinate(self, rec):
     return coordinate(rec, self.threshold)
