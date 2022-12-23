@@ -55,8 +55,8 @@ class Essemble:
         self.tds += tds
         self.ph += ph
         self.c += 1
-        Robot.write_signal(SEND_DATA + SPLIT_PACKAGE + commands[1] + SPLIT_PACKAGE + commands[2] 
-          + SPLIT_PACKAGE + commands[3] + SPLIT_PACKAGE + END_PACKAGE, self.lora)
+        # Robot.write_signal(SEND_DATA + SPLIT_PACKAGE + commands[1] + SPLIT_PACKAGE + commands[2] 
+        #   + SPLIT_PACKAGE + commands[3] + SPLIT_PACKAGE + END_PACKAGE, self.lora)
       
       if commands[0] == BARRIER_CODE:
         self.barriers[0], self.barriers[1], self.barriers[2] = map(int, commands[1:])

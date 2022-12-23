@@ -17,6 +17,7 @@ from ..config.automatic_code import RIGHT
 from ..config.automatic_code import SPECIFIC_HANDLE
 from ..config.automatic_code import STOP
 
+from ..config.essemble_code import SEND_DATA
 from ..config.essemble_code import NO_BARRIER
 from ..config.essemble_code import HAS_BARRIER
 from ..config.essemble_code import SPLIT_PACKAGE
@@ -67,6 +68,7 @@ class Automatic:
 
     self.__end_service = False
     self.speed = 0
+    self.angle = 0
     
     # Cac thong so cua thiet bi do mpu6050
     self.alpha = 0.2
@@ -77,6 +79,8 @@ class Automatic:
     # Tín hiệu từ mpu
     threading.Thread(name="MPU6050 service", target=self.__mpu6050) \
       .start()
+    threading.Thread(name = "Send data", target=self.__send_data) \
+      .start()
     
   def update_mode(self, mode):
     self.mode = mode
@@ -85,6 +89,15 @@ class Automatic:
     self.rectangles = rectangles
     self.frame = frame
     # print("Khung nhận rác ", rectangles)
+
+  def __send_data(self):
+    while not self.__end_service:
+      res = self.essemble.water_information()
+      Robot.write_signal(SEND_DATA + SPLIT_PACKAGE 
+        + str('{:.2f}'.format(res.ntu)) + SPLIT_PACKAGE + str('{:.2f}'.format(res.tds)
+        + str('{:.2f}'.format(res.ph)) + SPLIT_PACKAGE + str(self.mp.x) + SPLIT_PACKAGE
+        + str(self.mp.y) + SPLIT_PACKAGE + str(self.speed) + END_PACKAGE))
+      time.sleep(5)
 
   def run(self, trash_areas : List[
     Tuple[int, int, int, int]], frame
@@ -161,7 +174,7 @@ class Automatic:
         self.speed = self.v0 + a * ((cTime - pTime) / 1000)
         self.a0 = a
         self.v0 = self.speed
-        self.mp.run(self.speed * 0.001)
+        self.mp.run(self.speed * 0.001, self.angle)
 
   def boat_information(self):
     return {
