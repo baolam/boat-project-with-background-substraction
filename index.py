@@ -28,10 +28,10 @@ send_data = "SEND_DATA"
 response_control = "R"
 
 client = socketio.Client()
-lora = serial.Serial("/dev/ttyAMA0")
+lora = serial.Serial("/dev/ttyUSB0")
 
 def control_handler(command):
-  lora.write(b'HAND_CONTROL;{};#'.format(command))
+  lora.write(bytes('HAND_CONTROL;{};#'.format(command), "utf-8"))
   client.emit("RESPONSE", {
     "code" : "HAND_CONTROL",
     "response" : command
@@ -58,15 +58,15 @@ def lora_service():
     commands = commands.split(';')
     if commands[0] == HEALTH:
       lora.write(b'1;okok')
-    if commands[0] == SEND_DATA:
+    if commands[0] == send_data:
         ntu, tds, ph = map(int, commands[1:])
         client.emit("record", data={
             "ntu" : ntu, "tds" : tds, "ph" : ph
         }, namespace = NAMESPACE)
-    if commands[0] == BARRIER_CODE:
+    if commands[0] == barrier_code:
         left, forward, right = map(bool, commands[1:])
-        self.client.emit("barrier_code", data={
-            "left" : left, "right" : right, "forward" : forward
+        client.emit("barrier_code", data={
+          "left" : left, "right" : right, "forward" : forward
         }, namespace=NAMESPACE)
     
 threading.Thread(name="Client service", target=client_service).start()
