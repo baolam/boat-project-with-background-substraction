@@ -34,7 +34,11 @@ class Robot:
     self.angle = DEFAULT_ANGLE
   
   def write(self, data):
-    self.device.write(b'{}'.format(data))
+    self.write_signal(data, self.device)
+
+  @staticmethod
+  def write_signal(data, device):
+    device.write(b'{}'.format(data))
 
   def forward(self):
     self.write(FORWARD + SPLIT_PACKAGE + str(self.percentage) + SPLIT_PACKAGE + str(self.percentage) 
@@ -94,7 +98,7 @@ class Automatic:
 
   def all_lake_mode(self):
     print("Run on all_lake mode")
-
+    pass
     
   def only_lakeside(self):
     print("Run on only lakeside")
@@ -143,18 +147,20 @@ class Automatic:
     # https://www.youtube.com/watch?v=JTFa5l7zAA4
     # https://microdigisoft.com/mpu6050-accelerometergyroscope-sensor-interfacing-with-raspberry-pi/
     # https://pypi.org/project/mpu6050-raspberrypi/
+    # https://electronics.stackexchange.com/questions/142037/calculating-angles-from-mpu6050
 
     print("MPU6050 service started")
     while not self.__end_service:
       pTime = time.time()
       a = sensor.get_accel_data()["x"]
       a -= self.theta
-      a = a * self.alpha + (1 - self.alpha) * a0
+      a = a * self.alpha + (1 - self.alpha) * self.a0
       cTime = time.time()
       self.speed = self.v0 + a * ((cTime - pTime) / 1000)
       self.a0 = a
       self.v0 = self.speed
-      
+      self.mp.run(self.speed * 0.001)
+
   def boat_information(self):
     return {
       "speed" : self.speed
