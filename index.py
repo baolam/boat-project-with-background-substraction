@@ -27,7 +27,11 @@ client = socketio.Client()
 lora = serial.Serial("/dev/ttyAMA0")
 
 def control_handler(command):
-  print(command)
+  lora.write(b'HAND_CONTROL;{};#'.format(command))
+  client.emit("RESPONSE", {
+    "code" : "HAND_CONTROL",
+    "response" : command
+  })
 
 def client_service():
   global update_server
