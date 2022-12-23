@@ -92,9 +92,10 @@ class Automatic:
     # print("Khung nhận rác ", rectangles)
 
   def control_hand(self, command):
-    if command == FORWARD: self.robot.forward()
-    elif command == LEFT: self.robot.left()
-    elif command == RIGHT: self.robot.right()
+    command = command.split(';')
+    if command[0] == FORWARD: self.robot.forward()
+    elif command[0] == LEFT: self.robot.left(int(command[1]))
+    elif command[0] == RIGHT: self.robot.right(int(command[1]))
 
   def __send_data(self):
     while not self.__end_service:
