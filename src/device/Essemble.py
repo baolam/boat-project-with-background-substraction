@@ -70,7 +70,7 @@ class Essemble:
       
       if commands[0] == ASK_RECEIVER:
         Robot.write_signal(ANSWER + END_PACKAGE, self.arduino)
-        # Robot.write_signal(ANSWER + END_PACKAGE, self.lora)
+        Robot.write_signal(ANSWER + END_PACKAGE, self.lora)
 
   def water_information(self):
     data = {
