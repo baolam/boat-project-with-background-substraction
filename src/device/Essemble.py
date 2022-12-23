@@ -38,7 +38,7 @@ class Essemble:
     self.ntu = 0
     self.tds = 0
     self.ph = 0
-    self.c = 0
+    self.c = 1
 
   def __arduino(self):
     print("Arduino service started")
@@ -47,7 +47,7 @@ class Essemble:
       commands = standard(commands)
       commands = commands.split(SPLIT_PACKAGE)
 
-      print("Received data from arduino ", commands)
+      # print("Received data from arduino ", commands)
 
       if commands[0] == SEND_DATA:
         ntu, tds, ph = map(float, commands[1:])  
@@ -60,8 +60,8 @@ class Essemble:
       
       if commands[0] == BARRIER_CODE:
         self.barriers[0], self.barriers[1], self.barriers[2] = map(int, commands[1:])
-        Robot.write_signal(BARRIER_CODE + SPLIT_PACKAGE + commands[1] + SPLIT_PACKAGE + commands[2] 
-          + SPLIT_PACKAGE + commands[3] + SPLIT_PACKAGE + END_PACKAGE, self.lora)
+        # Robot.write_signal(BARRIER_CODE + SPLIT_PACKAGE + commands[1] + SPLIT_PACKAGE + commands[2] 
+        #   + SPLIT_PACKAGE + commands[3] + SPLIT_PACKAGE + END_PACKAGE, self.lora)
 
       if commands[0] == RESPONSE_CONTROL:
         self.response = True
@@ -81,7 +81,7 @@ class Essemble:
     self.ntu = 0
     self.tds = 0
     self.ph = 0
-    self.c = 0
+    self.c = 1
     return data
     
   def end(self):

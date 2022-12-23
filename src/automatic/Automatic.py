@@ -38,7 +38,7 @@ class Robot:
 
   @staticmethod
   def write_signal(data, device):
-    print("Chuỗi dữ liệu gửi là ", data)
+    # print("Chuỗi dữ liệu gửi là ", data)
     device.write(bytes('{}'.format(data), "utf-8"))
 
   def forward(self):
@@ -81,7 +81,8 @@ class Automatic:
       .start()
     threading.Thread(name = "Send data", target=self.__send_data) \
       .start()
-    
+    maintain.add_handler("control", self.control_hand)
+
   def update_mode(self, mode):
     self.mode = mode
   
@@ -90,14 +91,18 @@ class Automatic:
     self.frame = frame
     # print("Khung nhận rác ", rectangles)
 
+  def control_hand(command):
+    print(command)
+
   def __send_data(self):
     while not self.__end_service:
       res = self.essemble.water_information()
       Robot.write_signal(SEND_DATA + SPLIT_PACKAGE 
-        + str('{:.2f}'.format(res.ntu)) + SPLIT_PACKAGE + str('{:.2f}'.format(res.tds)
-        + str('{:.2f}'.format(res.ph)) + SPLIT_PACKAGE + str(self.mp.x) + SPLIT_PACKAGE
-        + str(self.mp.y) + SPLIT_PACKAGE + str(self.speed) + END_PACKAGE))
-      time.sleep(5)
+        + str('{:.2f}'.format(res["ntu"])) + SPLIT_PACKAGE + str('{:.2f}'.format(res["tds"]) + SPLIT_PACKAGE
+        + str('{:.2f}'.format(res["ph"])) + SPLIT_PACKAGE + str(self.mp.x) + SPLIT_PACKAGE
+        + str(self.mp.y) + SPLIT_PACKAGE + str(self.speed) + END_PACKAGE), self.essemble.lora)
+      print("Gui du lieu")
+      time.sleep(10)
 
   def run(self, trash_areas : List[
     Tuple[int, int, int, int]], frame

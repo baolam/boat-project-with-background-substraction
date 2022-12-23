@@ -25,6 +25,7 @@ class LoraSignal:
       commands = self.lora.readline()
       commands = standard(commands.decode('utf-8'))
       commands = commands.split(SPLIT_PACKAGE)
+      print(commands)
       if len(commands) > 0 and commands[0] == HAND_CONTROL:
           code = commands[1]
           if code == FORWARD: self.robot.forward()
