@@ -48,12 +48,12 @@ class Robot:
   def left(self, angle = None):
     if angle == None:
       angle = self.angle
-    self.write(LEFT + SPLIT_PACKAGE + str(angle) + SPLIT_PACKAGE + END_PACKAGE)
+    self.write(LEFT + SPLIT_PACKAGE + str(angle) + SPLIT_PACKAGE + str(40) + END_PACKAGE)
 
   def right(self, angle = None):
     if angle == None:
       angle = self.angle
-    self.write(RIGHT + SPLIT_PACKAGE + str(angle) + SPLIT_PACKAGE + END_PACKAGE)
+    self.write(RIGHT + SPLIT_PACKAGE + str(angle) + SPLIT_PACKAGE + str(40) + END_PACKAGE)
 
   def stop(self):
     self.write(STOP + SPLIT_PACKAGE + END_PACKAGE)
@@ -91,8 +91,10 @@ class Automatic:
     self.frame = frame
     # print("Khung nhận rác ", rectangles)
 
-  def control_hand(command):
-    print(command)
+  def control_hand(self, command):
+    if command == FORWARD: self.robot.forward()
+    elif command == LEFT: self.robot.left()
+    elif command == RIGHT: self.robot.right()
 
   def __send_data(self):
     while not self.__end_service:

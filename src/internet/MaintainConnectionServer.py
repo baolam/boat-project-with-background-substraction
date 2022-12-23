@@ -76,7 +76,7 @@ class MaintainConnectionServer:
   def __reconnect_socket(self):
     if self.client.connected:
       self.client.disconnect()
-    self.client_srv()
+    self.__client_srv()
 
   def __error_server(self, err):
     file_name = "{}/{}.txt".format(self.ROOT_PATH, time.time())
