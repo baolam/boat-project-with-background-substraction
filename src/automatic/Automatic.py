@@ -38,7 +38,7 @@ class Robot:
 
   @staticmethod
   def write_signal(data, device):
-    # print("Chuỗi dữ liệu gửi là ", data)
+    print("Chuỗi dữ liệu gửi là ", data)
     device.write(bytes('{}'.format(data), "utf-8"))
 
   def forward(self):
@@ -93,9 +93,11 @@ class Automatic:
 
   def control_hand(self, command):
     command = command.split(';')
+    print(command)
     if command[0] == FORWARD: self.robot.forward()
     elif command[0] == LEFT: self.robot.left(int(command[1]))
     elif command[0] == RIGHT: self.robot.right(int(command[1]))
+    elif command[0] == STOP: self.robot.stop()
 
   def __send_data(self):
     while not self.__end_service:

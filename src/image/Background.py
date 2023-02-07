@@ -18,9 +18,10 @@ class Background:
 
     self.__deconvolve = DeConvolve()
 
-  def preprocessing(self):
+  def preprocessing(self, default = True, frame = None):
     # Tiến hành lọc nhiễu ảnh
-    __, frame = self.video.read()
+    if default:
+      __, frame = self.video.read()
     frame = cv2.resize(frame, (HEIGHT, WIDTH))
 
     # cv2.imshow("ORIGINAL", frame)
@@ -35,8 +36,14 @@ class Background:
     
     return init, frame
 
-  def run(self):
-    filtered_frame, frame = self.preprocessing()
+  def run(self, bg = None):
+    filtered_frame, frame = None, None
+    if isinstance(bg, np.ndarray) == False:
+      print("ok")
+      filtered_frame, frame = self.preprocessing()
+    else:
+      filtered_frame, frame = self.preprocessing(frame=bg, default=False)
+
     if isinstance(self.frame, np.ndarray) == False:
       self.frame = filtered_frame
 
@@ -50,7 +57,8 @@ class Background:
     # Thuật toán phát hiện cạnh làm rõ nét đối tượng
     mask = cv2.Canny(mask, 50, 200)
 
-    # cv2.imshow("CANNY", mask)
+    if SHOW_IMAGE:
+      cv2.imshow("CANNY", mask)
 
     # Thuật toán này góp phần làm dày cạnh
     mask = cv2.dilate(mask, self.kernel, iterations=2)
@@ -69,6 +77,10 @@ class Background:
     res = self.__deconvolve.run(res)
     return res, frame
   
+  def from_path(self, path):
+    img = cv2.imread(path)
+    return self.run(bg=img)
+
   def add_background(self):
     ''' Gọi hàm này để tiến hành update ảnh background '''
     filtered_frame, frame = self.preprocessing()

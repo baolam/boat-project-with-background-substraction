@@ -6,3 +6,6 @@ def estimate(trash_areas):
       areas[w * h] = []
     areas[w * h].append(trash_area)
   return trash_areas
+
+def real_distance(w, f=30, e=0.2, W=2):
+  return f * W / (w + e)

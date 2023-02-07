@@ -7,8 +7,8 @@ sys.path.append("./")
 from src.image.Background import Background
 from src.image.DeConvolve import DeConvolve
 
-# video = cv2.VideoCapture("./src/image/experiment/ocean.mp4")
-video = cv2.VideoCapture(0)
+video = cv2.VideoCapture("./src/image/experiment/ocean.mp4")
+# video = cv2.VideoCapture(0)
 background = Background(video)
 deconvle = DeConvolve()
 
